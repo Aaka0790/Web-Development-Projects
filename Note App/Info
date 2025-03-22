@@ -1,0 +1,19 @@
+Vocality Notes
+Vocality Notes is a feature-rich note-taking application designed for efficiency and organization. It includes:
+
+Speech-to-text conversion for hands-free note-taking.
+
+Categorized work organization to keep personal and idea notes structured.
+
+Rich text formatting (bold, italic, underline) for enhanced readability.
+
+Text size adjustment for better customization.
+
+Favorite notes feature to quickly access important content.
+
+Search functionality for seamless navigation through saved notes.
+
+Technologies Used: HTML, CSS, JavaScript.
+
+Limitations:
+The speech-to-text functionality may not always provide accurate conversions, affecting transcription quality.
