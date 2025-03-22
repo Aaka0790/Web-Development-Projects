@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocality Notes</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-microphone-alt"></i>
+                <h1>Vocality Notes</h1>
+            </div>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search notes...">
+            </div>
+        </header>
+        
+        <main>
+            <div class="sidebar">
+                <button class="new-note-btn" id="newNoteBtn">
+                    <i class="fas fa-plus"></i>
+                    <span>New Note</span>
+                </button>
+                
+                <div class="note-categories">
+                    <div class="category active">
+                        <i class="fas fa-sticky-note"></i>
+                        <span>All Notes</span>
+                        <span class="count">0</span>
+                    </div>
+                    <div class="category">
+                        <i class="fas fa-star"></i>
+                        <span>Favorites</span>
+                        <span class="count">0</span>
+                    </div>
+                    <div class="category">
+                        <i class="fas fa-trash"></i>
+                        <span>Trash</span>
+                        <span class="count">0</span>
+                    </div>
+                </div>
+                
+                <div class="tags-section">
+                    <h3>Tags</h3>
+                    <div class="tag">
+                        <span class="tag-color" style="background-color: #FFDE7D;"></span>
+                        <span>Work</span>
+                    </div>
+                    <div class="tag">
+                        <span class="tag-color" style="background-color: #FF9B73;"></span>
+                        <span>Personal</span>
+                    </div>
+                    <div class="tag">
+                        <span class="tag-color" style="background-color: #B5EAD7;"></span>
+                        <span>Ideas</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="notes-container">
+                <div class="notes-list" id="notesList">
+                    <!-- Notes will be dynamically added here -->
+                </div>
+                
+                <div class="note-editor">
+                    <div class="editor-toolbar">
+                        <div class="left-tools">
+                            <button id="boldBtn" title="Bold"><i class="fas fa-bold"></i></button>
+                            <button id="italicBtn" title="Italic"><i class="fas fa-italic"></i></button>
+                            <button id="underlineBtn" title="Underline"><i class="fas fa-underline"></i></button>
+                            <select id="fontSelect" title="Font Size">
+                                <option value="1">Small</option>
+                                <option value="2" selected>Normal</option>
+                                <option value="3">Large</option>
+                                <option value="4">Extra Large</option>
+                            </select>
+                        </div>
+                        <div class="right-tools">
+                            <button id="favoriteBtn" title="Add to favorites"><i class="far fa-star"></i></button>
+                            <button id="deleteBtn" title="Delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="speech-controls">
+                        <button id="startSpeechBtn" class="speech-btn">
+                            <i class="fas fa-microphone"></i>
+                            <span>Start Dictation</span>
+                        </button>
+                        <div class="speech-status">
+                            <div class="listening-indicator">
+                                <span></span><span></span><span></span>
+                            </div>
+                            <p id="speechStatus">Click to start speaking</p>
+                        </div>
+                    </div>
+                    
+                    <div class="editor-main">
+                        <input type="text" id="noteTitle" placeholder="Note Title">
+                        <div id="noteContent" class="note-content" contenteditable="true" placeholder="Start typing your note or use speech-to-text..."></div>
+                    </div>
+                    
+                    <div class="editor-footer">
+                        <div class="tag-selector">
+                            <i class="fas fa-tag"></i>
+                            <select id="tagSelect">
+                                <option value="">Select tag</option>
+                                <option value="work">Work</option>
+                                <option value="personal">Personal</option>
+                                <option value="ideas">Ideas</option>
+                            </select>
+                        </div>
+                        <div class="note-info">
+                            <span id="wordCount">0 words</span>
+                            <span id="lastEdited">Edited: Just now</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for notifications -->
+    <div class="notification-modal" id="notificationModal">
+        <div class="notification-content">
+            <i class="fas fa-check-circle"></i>
+            <p id="notificationMessage">Note saved successfully!</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
