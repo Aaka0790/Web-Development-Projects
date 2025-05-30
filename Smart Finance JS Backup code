@@ -1,0 +1,1405 @@
+class SmartFinance {
+    constructor() {
+        this.data = {
+            transactions: [],
+            budgets: [],
+            goals: [],
+            accounts: {
+                checking: 15000,
+                savings: 8500,
+                credit: -1200,
+                cash: 300
+            },
+            settings: {
+                currency: 'USD',
+                theme: 'dark',
+                notifications: true
+            }
+        };
+        
+        this.charts = {};
+        this.currentSection = 'dashboard';
+        this.isBalanceVisible = true;
+        
+        this.init();
+    }
+
+    init() {
+        this.loadSampleData();
+        this.setupEventListeners();
+        this.initializeCharts();
+        this.updateDashboard();
+        this.startAnimations();
+        this.hideLoadingScreen();
+    }
+
+    // Data Management
+    loadSampleData() {
+        // Sample transactions
+        this.data.transactions = [
+            {
+                id: 1,
+                type: 'income',
+                amount: 3500,
+                category: 'salary',
+                description: 'Monthly Salary',
+                date: '2024-11-01',
+                account: 'checking'
+            },
+            {
+                id: 2,
+                type: 'expense',
+                amount: 1200,
+                category: 'food',
+                description: 'Groceries & Dining',
+                date: '2024-11-15',
+                account: 'checking'
+            },
+            {
+                id: 3,
+                type: 'expense',
+                amount: 450,
+                category: 'transport',
+                description: 'Gas & Maintenance',
+                date: '2024-11-12',
+                account: 'checking'
+            },
+            {
+                id: 4,
+                type: 'income',
+                amount: 800,
+                category: 'freelance',
+                description: 'Web Design Project',
+                date: '2024-11-20',
+                account: 'checking'
+            },
+            {
+                id: 5,
+                type: 'expense',
+                amount: 200,
+                category: 'entertainment',
+                description: 'Movie & Dinner',
+                date: '2024-11-18',
+                account: 'credit'
+            }
+        ];
+
+        // Sample budgets
+        this.data.budgets = [
+            { category: 'food', budget: 800, spent: 650 },
+            { category: 'transport', budget: 300, spent: 280 },
+            { category: 'entertainment', budget: 200, spent: 150 },
+            { category: 'shopping', budget: 400, spent: 320 },
+            { category: 'bills', budget: 600, spent: 580 }
+        ];
+
+        // Sample goals
+        this.data.goals = [
+            {
+                id: 1,
+                name: 'Emergency Fund',
+                target: 10000,
+                current: 6500,
+                deadline: '2025-06-01',
+                category: 'savings'
+            },
+            {
+                id: 2,
+                name: 'Vacation Fund',
+                target: 3000,
+                current: 1200,
+                deadline: '2025-03-01',
+                category: 'travel'
+            },
+            {
+                id: 3,
+                name: 'New Laptop',
+                target: 1500,
+                current: 800,
+                deadline: '2025-01-01',
+                category: 'technology'
+            }
+        ];
+    }
+
+    // Event Listeners
+    setupEventListeners() {
+        // Navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = link.dataset.section;
+                this.switchToSection(section);
+            });
+        });
+
+        // Mobile menu toggle
+        const mobileToggle = document.getElementById('mobileMenuToggle');
+        if (mobileToggle) {
+            mobileToggle.addEventListener('click', this.toggleMobileMenu);
+        }
+
+        // Dashboard actions
+        this.setupDashboardActions();
+
+        // Transaction form
+        this.setupTransactionForm();
+
+        // Quick actions
+        this.setupQuickActions();
+
+        // Filter and search
+        this.setupFiltersAndSearch();
+
+        // Settings and preferences
+        this.setupSettings();
+    }
+
+    setupDashboardActions() {
+        // Balance visibility toggle
+        const toggleBalance = document.getElementById('toggleBalance');
+        if (toggleBalance) {
+            toggleBalance.addEventListener('click', this.toggleBalanceVisibility.bind(this));
+        }
+
+        // Refresh button
+        const refreshBtn = document.getElementById('refreshBtn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', this.refreshData.bind(this));
+        }
+
+        // Export button
+        const exportBtn = document.getElementById('exportBtn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', this.exportData.bind(this));
+        }
+
+        // Quick add button
+        const quickAddBtn = document.getElementById('quickAddBtn');
+        if (quickAddBtn) {
+            quickAddBtn.addEventListener('click', () => this.openTransactionModal());
+        }
+
+        // Time period selectors
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const period = e.target.dataset.period;
+                this.updateChartPeriod(period);
+            });
+        });
+
+        // Insights toggle
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const insight = e.target.dataset.insight;
+                this.switchInsightView(insight);
+            });
+        });
+    }
+
+    setupTransactionForm() {
+        const form = document.getElementById('transactionForm');
+        if (form) {
+            form.addEventListener('submit', this.handleTransactionSubmit.bind(this));
+        }
+
+        // Recurring transaction toggle
+        const recurringCheckbox = document.getElementById('isRecurring');
+        if (recurringCheckbox) {
+            recurringCheckbox.addEventListener('change', (e) => {
+                const options = document.getElementById('recurringOptions');
+                options.style.display = e.target.checked ? 'block' : 'none';
+            });
+        }
+
+        // Category selector
+        const categorySelect = document.getElementById('transactionCategory');
+        if (categorySelect) {
+            categorySelect.addEventListener('change', this.handleCategoryChange.bind(this));
+        }
+    }
+
+    setupQuickActions() {
+        // Quick action buttons are handled by onclick attributes in HTML
+        // Additional setup can be added here if needed
+    }
+
+    setupFiltersAndSearch() {
+        const searchInput = document.getElementById('transactionSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', this.filterTransactions.bind(this));
+        }
+
+        const filterBtn = document.getElementById('transactionFilter');
+        if (filterBtn) {
+            filterBtn.addEventListener('click', this.showFilterOptions.bind(this));
+        }
+    }
+
+    setupSettings() {
+        // Settings will be implemented when the settings section is developed
+    }
+
+    // Navigation
+    switchToSection(sectionName) {
+        // Remove active class from all sections and nav links
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+
+        // Add active class to target section and nav link
+        const targetSection = document.getElementById(sectionName);
+        const targetNavLink = document.querySelector(`[data-section="${sectionName}"]`);
+        
+        if (targetSection) {
+            targetSection.classList.add('active');
+        }
+        if (targetNavLink) {
+            targetNavLink.classList.add('active');
+        }
+
+        this.currentSection = sectionName;
+
+        // Update section-specific data
+        if (sectionName === 'dashboard') {
+            this.updateDashboard();
+        }
+    }
+
+    toggleMobileMenu() {
+        const navMenu = document.getElementById('navMenu');
+        const mobileToggle = document.getElementById('mobileMenuToggle');
+        
+        navMenu.classList.toggle('active');
+        mobileToggle.classList.toggle('active');
+    }
+
+    // Dashboard Updates
+    updateDashboard() {
+        this.updateStatsCards();
+        this.updateRecentTransactions();
+        this.updateSpendingCategories();
+        this.updateGoalsPreview();
+        this.updateBudgetOverview();
+        this.updateInsights();
+        this.updateQuickStats();
+    }
+
+    updateStatsCards() {
+        const totalBalance = this.calculateTotalBalance();
+        const monthlyIncome = this.calculateMonthlyIncome();
+        const monthlyExpenses = this.calculateMonthlyExpenses();
+        const savingsRate = this.calculateSavingsRate();
+
+        // Update balance card
+        document.getElementById('totalBalance').textContent = this.formatCurrency(totalBalance);
+        document.getElementById('balanceTrend').textContent = '+12.5% from last month';
+
+        // Update income card
+        document.getElementById('monthlyIncome').textContent = this.formatCurrency(monthlyIncome);
+        document.getElementById('incomeTrend').textContent = '+5.2% this month';
+        this.updateIncomeProgress(monthlyIncome, 10000);
+
+        // Update expense card
+        document.getElementById('monthlyExpenses').textContent = this.formatCurrency(monthlyExpenses);
+        document.getElementById('expenseTrend').textContent = '-8.1% this month';
+        this.updateExpenseBreakdown();
+
+        // Update savings rate
+        document.getElementById('savingsRate').textContent = Math.round(savingsRate);
+        document.getElementById('ringValue').textContent = Math.round(savingsRate) + '%';
+        this.updateSavingsRing(savingsRate);
+    }
+
+    updateRecentTransactions() {
+        const container = document.getElementById('recentTransactions');
+        const recentTransactions = this.data.transactions
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .slice(0, 5);
+
+        container.innerHTML = recentTransactions.map(transaction => `
+            <div class="transaction-item ${transaction.type}">
+                <div class="transaction-icon">
+                    <i class="fas fa-${this.getTransactionIcon(transaction.category)}"></i>
+                </div>
+                <div class="transaction-details">
+                    <div class="transaction-title">${transaction.description}</div>
+                    <div class="transaction-meta">
+                        <span class="category">${this.getCategoryName(transaction.category)}</span>
+                        <span class="date">${this.formatDate(transaction.date)}</span>
+                    </div>
+                </div>
+                <div class="transaction-amount ${transaction.type}">
+                    ${transaction.type === 'income' ? '+' : '-'}${this.formatCurrency(transaction.amount)}
+                </div>
+            </div>
+        `).join('');
+
+        // Update transaction counts
+        const today = new Date().toISOString().split('T')[0];
+        const todayTransactions = this.data.transactions.filter(t => t.date === today).length;
+        document.getElementById('todayTransactions').textContent = todayTransactions;
+
+        const weekStart = new Date();
+        weekStart.setDate(weekStart.getDate() - 7);
+        const weekTransactions = this.data.transactions.filter(t => 
+            new Date(t.date) >= weekStart
+        ).length;
+        document.getElementById('weekTransactions').textContent = weekTransactions;
+    }
+
+    updateSpendingCategories() {
+        const categoryData = this.getCategoryData();
+        this.updateCategoryChart(categoryData);
+        this.updateCategoryLegend(categoryData);
+    }
+
+    updateGoalsPreview() {
+        const container = document.getElementById('goalsList');
+        
+        container.innerHTML = this.data.goals.map(goal => {
+            const progress = (goal.current / goal.target) * 100;
+            const daysLeft = this.getDaysUntil(goal.deadline);
+            
+            return `
+                <div class="goal-item">
+                    <div class="goal-header">
+                        <div class="goal-info">
+                            <h4 class="goal-name">${goal.name}</h4>
+                            <div class="goal-meta">
+                                <span class="goal-progress-text">${this.formatCurrency(goal.current)} of ${this.formatCurrency(goal.target)}</span>
+                                <span class="goal-deadline">${daysLeft} days left</span>
+                            </div>
+                        </div>
+                        <div class="goal-percentage">${Math.round(progress)}%</div>
+                    </div>
+                    <div class="goal-progress-bar">
+                        <div class="progress-fill" style="width: ${progress}%"></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        // Update goals summary
+        const totalGoals = this.data.goals.length;
+        const completedGoals = this.data.goals.filter(g => g.current >= g.target).length;
+        const totalTarget = this.data.goals.reduce((sum, g) => sum + g.target, 0);
+        const totalSaved = this.data.goals.reduce((sum, g) => sum + g.current, 0);
+
+        document.getElementById('goalsSummary').innerHTML = `
+            <div class="summary-item">
+                <span class="label">Active Goals</span>
+                <span class="value">${totalGoals}</span>
+            </div>
+            <div class="summary-item">
+                <span class="label">Completed</span>
+                <span class="value">${completedGoals}</span>
+            </div>
+            <div class="summary-item">
+                <span class="label">Total Progress</span>
+                <span class="value">${Math.round((totalSaved / totalTarget) * 100)}%</span>
+            </div>
+        `;
+    }
+
+    updateBudgetOverview() {
+        const totalBudget = this.data.budgets.reduce((sum, b) => sum + b.budget, 0);
+        const totalSpent = this.data.budgets.reduce((sum, b) => sum + b.spent, 0);
+        const remaining = totalBudget - totalSpent;
+
+        document.getElementById('totalBudget').textContent = this.formatCurrency(totalBudget);
+        document.getElementById('totalSpent').textContent = this.formatCurrency(totalSpent);
+        document.getElementById('budgetRemaining').textContent = this.formatCurrency(remaining);
+
+        const container = document.getElementById('budgetProgress');
+        container.innerHTML = this.data.budgets.map(budget => {
+            const percentage = (budget.spent / budget.budget) * 100;
+            const isOverBudget = percentage > 100;
+            
+            return `
+                <div class="budget-item ${isOverBudget ? 'over-budget' : ''}">
+                    <div class="budget-info">
+                        <span class="budget-category">${this.getCategoryName(budget.category)}</span>
+                        <span class="budget-amount">${this.formatCurrency(budget.spent)} / ${this.formatCurrency(budget.budget)}</span>
+                    </div>
+                    <div class="budget-progress-bar">
+                        <div class="progress-fill" style="width: ${Math.min(percentage, 100)}%"></div>
+                    </div>
+                    <div class="budget-percentage ${isOverBudget ? 'over' : ''}">${Math.round(percentage)}%</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    updateInsights() {
+        const container = document.getElementById('insightsContent');
+        
+        // Generate insights based on spending patterns
+        const insights = this.generateInsights();
+        
+        container.innerHTML = `
+            <div class="insights-list">
+                ${insights.map(insight => `
+                    <div class="insight-item ${insight.type}">
+                        <div class="insight-icon">
+                            <i class="fas fa-${insight.icon}"></i>
+                        </div>
+                        <div class="insight-content">
+                            <h4 class="insight-title">${insight.title}</h4>
+                            <p class="insight-description">${insight.description}</p>
+                            ${insight.action ? `<button class="insight-action">${insight.action}</button>` : ''}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    updateQuickStats() {
+        const container = document.getElementById('quickStatsList');
+        const stats = this.calculateQuickStats();
+        
+        container.innerHTML = stats.map(stat => `
+            <div class="quick-stat-item">
+                <div class="stat-icon">
+                    <i class="fas fa-${stat.icon}"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">${stat.value}</div>
+                    <div class="stat-label">${stat.label}</div>
+                </div>
+                <div class="stat-trend ${stat.trend > 0 ? 'positive' : 'negative'}">
+                    <i class="fas fa-arrow-${stat.trend > 0 ? 'up' : 'down'}"></i>
+                    ${Math.abs(stat.trend)}%
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Chart Management
+    initializeCharts() {
+        this.initBalanceChart();
+        this.initCategoryChart();
+    }
+
+    initBalanceChart() {
+        const ctx = document.getElementById('balanceChart');
+        if (!ctx) return;
+
+        const balanceData = this.generateBalanceHistory();
+        
+        this.charts.balance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: balanceData.labels,
+                datasets: [{
+                    data: balanceData.values,
+                    borderColor: '#00d4aa',
+                    backgroundColor: 'rgba(0, 212, 170, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { display: false },
+                    y: { display: false }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+    }
+
+    initCategoryChart() {
+        const ctx = document.getElementById('categoryChartBar');
+        if (!ctx) return;
+
+        const categoryData = this.getCategoryData();
+        
+        this.charts.category = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: categoryData.labels,
+                datasets: [{
+                    data: categoryData.values,
+                    backgroundColor: [
+                        '#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24',
+                        '#6c5ce7', '#a29bfe', '#fd79a8', '#00b894'
+                    ],
+                    borderWidth: 0,
+                    hoverBorderWidth: 2,
+                    hoverBorderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const percentage = ((context.parsed / categoryData.total) * 100).toFixed(1);
+                                return `${context.label}: ${this.formatCurrency(context.parsed)} (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+    }
+
+    updateCategoryChart(data) {
+        if (this.charts.category) {
+            this.charts.category.data.labels = data.labels;
+            this.charts.category.data.datasets[0].data = data.values;
+            this.charts.category.update();
+        }
+    }
+
+    updateCategoryLegend(data) {
+        const container = document.getElementById('categoryLegend');
+        
+        container.innerHTML = data.labels.map((label, index) => {
+            const value = data.values[index];
+            const percentage = ((value / data.total) * 100).toFixed(1);
+            const color = this.charts.category.data.datasets[0].backgroundColor[index];
+            
+            return `
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: ${color}"></div>
+                    <div class="legend-content">
+                        <span class="legend-label">${label}</span>
+                        <span class="legend-value">${this.formatCurrency(value)} (${percentage}%)</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Transaction Management
+    openTransactionModal(type = 'expense') {
+        const modal = document.getElementById('transactionModal');
+        const title = document.getElementById('modalTitle');
+        
+        title.textContent = `Add ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+        
+        // Set default date to today
+        document.getElementById('transactionDate').value = new Date().toISOString().split('T')[0];
+        
+        // Clear form
+        document.getElementById('transactionForm').reset();
+        
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    handleTransactionSubmit(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        const transaction = {
+            id: Date.now(),
+            type: document.getElementById('modalTitle').textContent.includes('Income') ? 'income' : 'expense',
+            amount: parseFloat(document.getElementById('transactionAmount').value),
+            category: document.getElementById('transactionCategory').value,
+            description: document.getElementById('transactionDescription').value || 'No description',
+            date: document.getElementById('transactionDate').value,
+            account: document.getElementById('transactionAccount').value
+        };
+
+        this.addTransaction(transaction);
+        this.closeModal('transactionModal');
+        this.showNotification('Transaction added successfully!', 'success');
+        this.updateDashboard();
+    }
+
+    addTransaction(transaction) {
+        this.data.transactions.push(transaction);
+        
+        // Update account balance
+        const multiplier = transaction.type === 'income' ? 1 : -1;
+        if (this.data.accounts[transaction.account] !== undefined) {
+            this.data.accounts[transaction.account] += transaction.amount * multiplier;
+        }
+    }
+
+    // Utility Functions
+    calculateTotalBalance() {
+        return Object.values(this.data.accounts).reduce((sum, balance) => sum + balance, 0);
+    }
+
+    calculateMonthlyIncome() {
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        
+        return this.data.transactions
+            .filter(t => {
+                const date = new Date(t.date);
+                return t.type === 'income' && 
+                       date.getMonth() === currentMonth && 
+                       date.getFullYear() === currentYear;
+            })
+            .reduce((sum, t) => sum + t.amount, 0);
+    }
+
+    calculateMonthlyExpenses() {
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        
+        return this.data.transactions
+            .filter(t => {
+                const date = new Date(t.date);
+                return t.type === 'expense' && 
+                       date.getMonth() === currentMonth && 
+                       date.getFullYear() === currentYear;
+            })
+            .reduce((sum, t) => sum + t.amount, 0);
+    }
+
+    calculateSavingsRate() {
+        const income = this.calculateMonthlyIncome();
+        const expenses = this.calculateMonthlyExpenses();
+        return income > 0 ? ((income - expenses) / income) * 100 : 0;
+    }
+
+    getCategoryData() {
+        const expenses = this.data.transactions.filter(t => t.type === 'expense');
+        const categoryTotals = {};
+        
+        expenses.forEach(transaction => {
+            categoryTotals[transaction.category] = (categoryTotals[transaction.category] || 0) + transaction.amount;
+        });
+        
+        const labels = Object.keys(categoryTotals).map(cat => this.getCategoryName(cat));
+        const values = Object.values(categoryTotals);
+        const total = values.reduce((sum, val) => sum + val, 0);
+        
+        return { labels, values, total };
+    }
+
+    generateBalanceHistory() {
+        const days = 30;
+        const labels = [];
+        const values = [];
+        const baseBalance = this.calculateTotalBalance();
+        
+        for (let i = days; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            labels.push(date.getDate().toString());
+            
+            // Simulate balance history with some randomness
+            const variation = (Math.random() - 0.5) * 1000;
+            values.push(baseBalance + variation);
+        }
+        
+        return { labels, values };
+    }
+
+    generateInsights() {
+        const insights = [];
+        const expenses = this.calculateMonthlyExpenses();
+        const income = this.calculateMonthlyIncome();
+        
+        // Spending trend insight
+        if (expenses > income * 0.8) {
+            insights.push({
+                type: 'warning',
+                icon: 'exclamation-triangle',
+                title: 'High Spending Alert',
+                description: 'Your expenses are 80% of your income this month. Consider reviewing your budget.',
+                action: 'Review Budget'
+            });
+        }
+        
+        // Savings opportunity
+        const savingsRate = this.calculateSavingsRate();
+        if (savingsRate < 20) {
+            insights.push({
+                type: 'tip',
+                icon: 'lightbulb',
+                title: 'Savings Opportunity',
+                description: 'Try to save at least 20% of your income. You\'re currently saving ' + Math.round(savingsRate) + '%.',
+                action: 'Set Savings Goal'
+            });
+        }
+        
+        // Category spending insight
+        const categoryData = this.getCategoryData();
+        const topCategory = categoryData.labels[0];
+        if (topCategory) {
+            insights.push({
+                type: 'info',
+                icon: 'chart-pie',
+                title: 'Top Spending Category',
+                description: `Most of your spending this month is on ${topCategory}. Consider if this aligns with your priorities.`,
+                action: 'View Details'
+            });
+        }
+        
+        return insights;
+    }
+
+    calculateQuickStats() {
+        const transactions = this.data.transactions;
+        const thisMonth = new Date().getMonth();
+        const lastMonth = thisMonth - 1;
+        
+        // Average transaction amount
+        const avgTransaction = transactions.length > 0 ? 
+            transactions.reduce((sum, t) => sum + t.amount, 0) / transactions.length : 0;
+        
+        // Transactions this month vs last month
+        const thisMonthTransactions = transactions.filter(t => 
+            new Date(t.date).getMonth() === thisMonth
+        ).length;
+        const lastMonthTransactions = transactions.filter(t => 
+            new Date(t.date).getMonth() === lastMonth
+        ).length;
+        const transactionTrend = lastMonthTransactions > 0 ? 
+            ((thisMonthTransactions - lastMonthTransactions) / lastMonthTransactions) * 100 : 0;
+        
+        return [
+            {
+                icon: 'calculator',
+                value: this.formatCurrency(avgTransaction),
+                label: 'Avg. Transaction',
+                trend: 5.2
+            },
+            {
+                icon: 'list',
+                value: thisMonthTransactions.toString(),
+                label: 'Transactions',
+                trend: Math.round(transactionTrend)
+            },
+            {
+                icon: 'calendar',
+                value: Math.round(this.calculateDailySpend()).toString(),
+                label: 'Daily Spend',
+                trend: -3.1
+            },
+            {
+                icon: 'piggy-bank',
+                value: Math.round(this.calculateSavingsRate()) + '%',
+                label: 'Savings Rate',
+                trend: 8.5
+            }
+        ];
+    }
+
+    calculateDailySpend() {
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        
+        const monthlyExpenses = this.calculateMonthlyExpenses();
+        return monthlyExpenses / daysInMonth;
+    }
+
+    // Helper Functions
+    formatCurrency(amount) {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        }).format(Math.abs(amount));
+    }
+
+    formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+        });
+    }
+
+    getCategoryName(category) {
+        const categoryNames = {
+            salary: 'Salary',
+            freelance: 'Freelance',
+            investment: 'Investment',
+            business: 'Business',
+            gift: 'Gift',
+            food: 'Food & Dining',
+            transport: 'Transportation',
+            entertainment: 'Entertainment',
+            shopping: 'Shopping',
+            bills: 'Bills & Utilities',
+            healthcare: 'Healthcare',
+            education: 'Education',
+            travel: 'Travel',
+            insurance: 'Insurance',
+            other: 'Other'
+        };
+        return categoryNames[category] || category;
+    }
+// Continuing from getTransactionIcon function...
+
+    getTransactionIcon(category) {
+        const icons = {
+            salary: 'briefcase',
+            freelance: 'laptop',
+            investment: 'chart-line',
+            business: 'building',
+            gift: 'gift',
+            food: 'utensils',
+            transport: 'car',
+            entertainment: 'film',
+            shopping: 'shopping-bag',
+            bills: 'file-invoice-dollar',
+            healthcare: 'heartbeat',
+            education: 'graduation-cap',
+            travel: 'plane',
+            insurance: 'shield-alt',
+            other: 'question-circle'
+        };
+        return icons[category] || 'circle';
+    }
+
+    getDaysUntil(dateString) {
+        const targetDate = new Date(dateString);
+        const today = new Date();
+        const diffTime = targetDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return Math.max(0, diffDays);
+    }
+
+    // Dashboard Action Handlers
+    toggleBalanceVisibility() {
+        this.isBalanceVisible = !this.isBalanceVisible;
+        const balanceElements = document.querySelectorAll('.balance-amount, .amount-value');
+        const toggleBtn = document.getElementById('toggleBalance');
+        
+        balanceElements.forEach(element => {
+            if (this.isBalanceVisible) {
+                element.style.filter = 'none';
+                element.textContent = element.dataset.originalValue || element.textContent;
+            } else {
+                element.dataset.originalValue = element.textContent;
+                element.style.filter = 'blur(4px)';
+                element.textContent = '••••';
+            }
+        });
+        
+        toggleBtn.innerHTML = this.isBalanceVisible ? 
+            '<i class="fas fa-eye-slash"></i>' : 
+            '<i class="fas fa-eye"></i>';
+    }
+
+    refreshData() {
+        const refreshBtn = document.getElementById('refreshBtn');
+        refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        // Simulate data refresh
+        setTimeout(() => {
+            this.updateDashboard();
+            refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
+            this.showNotification('Data refreshed successfully!', 'success');
+        }, 1000);
+    }
+
+    exportData() {
+        const data = {
+            transactions: this.data.transactions,
+            budgets: this.data.budgets,
+            goals: this.data.goals,
+            accounts: this.data.accounts,
+            exportDate: new Date().toISOString()
+        };
+        
+        const dataStr = JSON.stringify(data, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `financeflow-export-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        this.showNotification('Data exported successfully!', 'success');
+    }
+
+    // Quick Actions
+    quickAddIncome() {
+        this.openTransactionModal('income');
+        document.getElementById('modalTitle').textContent = 'Add Income';
+    }
+
+    quickAddExpense() {
+        this.openTransactionModal('expense');
+        document.getElementById('modalTitle').textContent = 'Add Expense';
+    }
+
+    quickTransfer() {
+        this.showNotification('Transfer feature coming soon!', 'info');
+    }
+
+    quickBudget() {
+        this.showNotification('Budget setup feature coming soon!', 'info');
+    }
+
+    // Chart Period Updates
+    updateChartPeriod(period) {
+        // Remove active class from all period buttons
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Add active class to selected button
+        document.querySelector(`[data-period="${period}"]`).classList.add('active');
+        
+        // Update chart data based on period
+        let filteredData;
+        const today = new Date();
+        
+        switch(period) {
+            case '7d':
+                filteredData = this.getDataForDays(7);
+                break;
+            case '30d':
+                filteredData = this.getDataForDays(30);
+                break;
+            case '90d':
+                filteredData = this.getDataForDays(90);
+                break;
+            case '1y':
+                filteredData = this.getDataForDays(365);
+                break;
+            default:
+                filteredData = this.getDataForDays(30);
+        }
+        
+        this.updateChartsWithData(filteredData);
+    }
+
+    getDataForDays(days) {
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - days);
+        
+        return this.data.transactions.filter(transaction => 
+            new Date(transaction.date) >= cutoffDate
+        );
+    }
+
+    updateChartsWithData(transactions) {
+        // Update balance chart with filtered data
+        if (this.charts.balance) {
+            const balanceData = this.generateBalanceHistoryFromTransactions(transactions);
+            this.charts.balance.data.labels = balanceData.labels;
+            this.charts.balance.data.datasets[0].data = balanceData.values;
+            this.charts.balance.update();
+        }
+        
+        // Update category chart with filtered data
+        const categoryData = this.getCategoryDataFromTransactions(transactions);
+        this.updateCategoryChart(categoryData);
+        this.updateCategoryLegend(categoryData);
+    }
+
+    generateBalanceHistoryFromTransactions(transactions) {
+        const days = 30;
+        const labels = [];
+        const values = [];
+        let runningBalance = this.calculateTotalBalance();
+        
+        // Sort transactions by date
+        const sortedTransactions = [...transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        for (let i = days; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            labels.push(date.getDate().toString());
+            
+            // Calculate balance for this day
+            const dayTransactions = sortedTransactions.filter(t => 
+                new Date(t.date).toDateString() === date.toDateString()
+            );
+            
+            dayTransactions.forEach(transaction => {
+                const multiplier = transaction.type === 'income' ? 1 : -1;
+                runningBalance += transaction.amount * multiplier;
+            });
+            
+            values.push(runningBalance);
+        }
+        
+        return { labels, values };
+    }
+
+    getCategoryDataFromTransactions(transactions) {
+        const expenses = transactions.filter(t => t.type === 'expense');
+        const categoryTotals = {};
+        
+        expenses.forEach(transaction => {
+            categoryTotals[transaction.category] = (categoryTotals[transaction.category] || 0) + transaction.amount;
+        });
+        
+        const labels = Object.keys(categoryTotals).map(cat => this.getCategoryName(cat));
+        const values = Object.values(categoryTotals);
+        const total = values.reduce((sum, val) => sum + val, 0);
+        
+        return { labels, values, total };
+    }
+
+    // Insight Views
+    switchInsightView(insight) {
+        // Remove active class from all insight buttons
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Add active class to selected button
+        document.querySelector(`[data-insight="${insight}"]`).classList.add('active');
+        
+        // Update insights content based on selection
+        this.updateInsightContent(insight);
+    }
+
+    updateInsightContent(type) {
+        const container = document.getElementById('insightsContent');
+        let content = '';
+        
+        switch(type) {
+            case 'spending':
+                content = this.generateSpendingInsights();
+                break;
+            case 'income':
+                content = this.generateIncomeInsights();
+                break;
+            case 'trends':
+                content = this.generateTrendInsights();
+                break;
+            case 'goals':
+                content = this.generateGoalInsights();
+                break;
+            default:
+                content = this.generateGeneralInsights();
+        }
+        
+        container.innerHTML = content;
+    }
+
+    generateSpendingInsights() {
+        const expenses = this.data.transactions.filter(t => t.type === 'expense');
+        const totalSpent = expenses.reduce((sum, t) => sum + t.amount, 0);
+        const avgDaily = totalSpent / 30;
+        
+        return `
+            <div class="insights-list">
+                <div class="insight-item info">
+                    <div class="insight-icon"><i class="fas fa-shopping-cart"></i></div>
+                    <div class="insight-content">
+                        <h4>Spending Overview</h4>
+                        <p>You've spent ${this.formatCurrency(totalSpent)} this month, averaging ${this.formatCurrency(avgDaily)} per day.</p>
+                    </div>
+                </div>
+                <div class="insight-item tip">
+                    <div class="insight-icon"><i class="fas fa-lightbulb"></i></div>
+                    <div class="insight-content">
+                        <h4>Money-Saving Tip</h4>
+                        <p>Consider the 24-hour rule: wait a day before making non-essential purchases over $50.</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    generateIncomeInsights() {
+        const income = this.calculateMonthlyIncome();
+        const sources = this.data.transactions.filter(t => t.type === 'income').length;
+        
+        return `
+            <div class="insights-list">
+                <div class="insight-item success">
+                    <div class="insight-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="insight-content">
+                        <h4>Income Analysis</h4>
+                        <p>Your monthly income is ${this.formatCurrency(income)} from ${sources} different sources.</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    generateTrendInsights() {
+        const savingsRate = this.calculateSavingsRate();
+        
+        return `
+            <div class="insights-list">
+                <div class="insight-item ${savingsRate > 20 ? 'success' : 'warning'}">
+                    <div class="insight-icon"><i class="fas fa-trending-up"></i></div>
+                    <div class="insight-content">
+                        <h4>Savings Trend</h4>
+                        <p>Your current savings rate is ${Math.round(savingsRate)}%. ${savingsRate > 20 ? 'Great job!' : 'Try to reach 20% for optimal financial health.'}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    generateGoalInsights() {
+        const activeGoals = this.data.goals.length;
+        const completedGoals = this.data.goals.filter(g => g.current >= g.target).length;
+        
+        return `
+            <div class="insights-list">
+                <div class="insight-item info">
+                    <div class="insight-icon"><i class="fas fa-target"></i></div>
+                    <div class="insight-content">
+                        <h4>Goal Progress</h4>
+                        <p>You have ${activeGoals} active goals with ${completedGoals} completed. Keep up the momentum!</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    generateGeneralInsights() {
+        return this.updateInsights();
+    }
+
+    // Transaction Filtering and Search
+    filterTransactions() {
+        const searchTerm = document.getElementById('transactionSearch').value.toLowerCase();
+        const transactionItems = document.querySelectorAll('.transaction-item');
+        
+        transactionItems.forEach(item => {
+            const description = item.querySelector('.transaction-title').textContent.toLowerCase();
+            const category = item.querySelector('.category').textContent.toLowerCase();
+            
+            if (description.includes(searchTerm) || category.includes(searchTerm)) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    showFilterOptions() {
+        this.showNotification('Advanced filters coming soon!', 'info');
+    }
+
+    // Form Handlers
+    handleCategoryChange(e) {
+        const category = e.target.value;
+        // Could add category-specific default values or suggestions here
+        console.log('Category changed to:', category);
+    }
+
+    // Progress Bar Updates
+    updateIncomeProgress(current, target) {
+        const progressBar = document.querySelector('.income-progress .progress-fill');
+        if (progressBar) {
+            const percentage = Math.min((current / target) * 100, 100);
+            progressBar.style.width = percentage + '%';
+        }
+    }
+
+    updateExpenseBreakdown() {
+        const container = document.getElementById('expenseBreakdown');
+        if (!container) return;
+        
+        const expenses = this.data.transactions.filter(t => t.type === 'expense');
+        const categoryTotals = {};
+        
+        expenses.forEach(transaction => {
+            categoryTotals[transaction.category] = (categoryTotals[transaction.category] || 0) + transaction.amount;
+        });
+        
+        const sortedCategories = Object.entries(categoryTotals)
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 3);
+        
+        container.innerHTML = sortedCategories.map(([category, amount]) => `
+            <div class="expense-item">
+                <span class="category">${this.getCategoryName(category)}</span>
+                <span class="amount">${this.formatCurrency(amount)}</span>
+            </div>
+        `).join('');
+    }
+
+    updateSavingsRing(percentage) {
+        const ring = document.querySelector('.savings-ring .progress-ring');
+        if (ring) {
+            const circumference = 2 * Math.PI * 45; // radius = 45
+            const offset = circumference - (percentage / 100) * circumference;
+            ring.style.strokeDasharray = `${circumference} ${circumference}`;
+            ring.style.strokeDashoffset = offset;
+        }
+    }
+
+    // Animations and UI Effects
+    startAnimations() {
+        // Add loading animations for charts
+        this.animateStatsCards();
+        this.animateProgressBars();
+    }
+
+    animateStatsCards() {
+        const cards = document.querySelectorAll('.stat-card');
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+            card.classList.add('animate-in');
+        });
+    }
+
+    animateProgressBars() {
+        const progressBars = document.querySelectorAll('.progress-fill');
+        progressBars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 500);
+        });
+    }
+
+    hideLoadingScreen() {
+        const loadingScreen = document.getElementById('loadingScreen');
+        if (loadingScreen) {
+            setTimeout(() => {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 300);
+            }, 1000);
+        }
+    }
+
+    // Notification System
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <i class="fas fa-${this.getNotificationIcon(type)}"></i>
+                <span>${message}</span>
+            </div>
+            <button class="notification-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+
+    getNotificationIcon(type) {
+        const icons = {
+            success: 'check-circle',
+            warning: 'exclamation-triangle',
+            error: 'exclamation-circle',
+            info: 'info-circle'
+        };
+        return icons[type] || 'info-circle';
+    }
+
+    // Data Persistence (Mock - would integrate with backend/local storage)
+    saveData() {
+        try {
+            localStorage.setItem('financeFlowData', JSON.stringify(this.data));
+            console.log('Data saved successfully');
+        } catch (error) {
+            console.error('Error saving data:', error);
+        }
+    }
+
+    loadData() {
+        try {
+            const savedData = localStorage.getItem('financeFlowData');
+            if (savedData) {
+                this.data = { ...this.data, ...JSON.parse(savedData) };
+                console.log('Data loaded successfully');
+            }
+        } catch (error) {
+            console.error('Error loading data:', error);
+        }
+    }
+
+    // Responsive Helpers
+    checkResponsive() {
+        const isMobile = window.innerWidth <= 768;
+        document.body.classList.toggle('mobile-view', isMobile);
+        
+        // Adjust charts for mobile
+        if (this.charts.balance && this.charts.category) {
+            this.charts.balance.resize();
+            this.charts.category.resize();
+        }
+    }
+}
+
+// Initialize the application when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    window.financeApp = new FinanceFlowApp();
+    
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        window.financeApp.checkResponsive();
+    });
+    
+    // Auto-save data periodically
+    setInterval(() => {
+        window.financeApp.saveData();
+    }, 30000); // Save every 30 seconds
+});
+
+// Global helper functions for HTML onclick attributes
+function openTransactionModal(type = 'expense') {
+    window.financeApp.openTransactionModal(type);
+}
+
+function closeModal(modalId) {
+    window.financeApp.closeModal(modalId);
+}
+
+function quickAddIncome() {
+    window.financeApp.quickAddIncome();
+}
+
+function quickAddExpense() {
+    window.financeApp.quickAddExpense();
+}
+
+function quickTransfer() {
+    window.financeApp.quickTransfer();
+}
+
+function quickBudget() {
+    window.financeApp.quickBudget();
+}
+function closeModal(id) {
+    document.getElementById(id).style.display = "none";
+}
