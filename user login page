@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Finance</title>
+    <style>
+/* === ULTRA-ENHANCED MODAL === */
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+    --glass-bg: rgba(15, 23, 42, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --accent-purple: #8b5cf6;
+    --accent-blue: #3b82f6;
+    --success-green: #10b981;
+    --shadow-intense: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+    --blur-intense: blur(24px) saturate(180%) brightness(120%);
+}
+
+/* Enhanced backdrop with particle effect */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(120, 219, 255, 0.3) 0%, transparent 50%),
+        linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+    backdrop-filter: blur(16px) saturate(150%);
+    z-index: 9998;
+    animation: backdropFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes backdropFadeIn {
+    from { 
+        opacity: 0; 
+        backdrop-filter: blur(0px);
+    }
+    to { 
+        opacity: 1; 
+        backdrop-filter: blur(16px) saturate(150%);
+    }
+}
+
+/* Ultra-enhanced modal with floating animation */
+.modal {
+    background: var(--glass-bg);
+    backdrop-filter: var(--blur-intense);
+    -webkit-backdrop-filter: var(--blur-intense);
+    border-radius: 2rem;
+    border: 1px solid var(--glass-border);
+    box-shadow: 
+        var(--shadow-intense),
+        0 0 80px rgba(139, 92, 246, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+    padding: 3.5rem 3rem;
+    color: var(--text-primary);
+    max-width: 580px;
+    width: 92%;
+    margin: auto;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    animation: modalAppear 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.modal:hover {
+    transform: translate(-50%, -50%) translateY(-8px);
+    box-shadow: 
+        0 35px 70px -12px rgba(0, 0, 0, 0.9),
+        0 0 120px rgba(139, 92, 246, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Animated gradient header with morphing colors */
+.modal::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 12px;
+    width: 100%;
+    background: var(--primary-gradient);
+    background-size: 400% 100%;
+    animation: gradientMorph 6s ease-in-out infinite;
+    border-radius: 2rem 2rem 0 0;
+}
+
+@keyframes gradientMorph {
+    0%, 100% { 
+        background-position: 0% 50%;
+        filter: hue-rotate(0deg) saturate(100%);
+    }
+    25% { 
+        background-position: 50% 0%;
+        filter: hue-rotate(90deg) saturate(120%);
+    }
+    50% { 
+        background-position: 100% 50%;
+        filter: hue-rotate(180deg) saturate(110%);
+    }
+    75% { 
+        background-position: 50% 100%;
+        filter: hue-rotate(270deg) saturate(130%);
+    }
+}
+
+/* Enhanced inner glow with pulsing effect */
+.modal::after {
+    content: "";
+    position: absolute;
+    top: 12px;
+    left: 1px;
+    right: 1px;
+    bottom: 1px;
+    border-radius: calc(2rem - 1px);
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.08) 0%,
+        rgba(255, 255, 255, 0.02) 50%,
+        rgba(139, 92, 246, 0.05) 100%
+    );
+    pointer-events: none;
+    animation: innerGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes innerGlow {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+@keyframes modalAppear {
+    0% { 
+        opacity: 0; 
+        transform: translate(-50%, -50%) scale(0.7) rotateX(15deg);
+        filter: blur(10px);
+    }
+    60% { 
+        transform: translate(-50%, -50%) scale(1.05) rotateX(0deg);
+        filter: blur(2px);
+    }
+    100% { 
+        opacity: 1; 
+        transform: translate(-50%, -50%) scale(1) rotateX(0deg);
+        filter: blur(0px);
+    }
+}
+
+/* Ultra-enhanced input fields with floating labels */
+.modal .input-group {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.modal .floating-input {
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    padding: 1.75rem 1.25rem 0.75rem;
+    border-radius: 1.25rem;
+    width: 100%;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    backdrop-filter: blur(10px);
+    outline: none;
+}
+
+.modal .floating-label {
+    position: absolute;
+    left: 1.25rem;
+    top: 1.25rem;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    font-weight: 500;
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transform-origin: left center;
+}
+
+.modal .floating-input:focus,
+.modal .floating-input:not(:placeholder-shown) {
+    border-color: var(--accent-purple);
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: 
+        0 0 0 4px rgba(139, 92, 246, 0.15),
+        0 12px 35px rgba(139, 92, 246, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: translateY(-4px);
+}
+
+.modal .floating-input:focus + .floating-label,
+.modal .floating-input:not(:placeholder-shown) + .floating-label {
+    transform: translateY(-1.2rem) scale(0.85);
+    color: var(--accent-purple);
+    font-weight: 600;
+}
+
+.modal .floating-input::placeholder {
+    color: transparent;
+}
+
+/* Micro-interactions for inputs */
+.modal .floating-input:focus::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 1.25rem;
+    background: linear-gradient(45deg, 
+        rgba(139, 92, 246, 0.1), 
+        rgba(59, 130, 246, 0.1)
+    );
+    animation: inputShimmer 2s ease-in-out infinite;
+}
+
+@keyframes inputShimmer {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+/* Ultra-enhanced buttons with 3D effect */
+.modal .btn-primary {
+    background: linear-gradient(135deg, 
+        var(--accent-purple) 0%,
+        var(--accent-blue) 50%,
+        #ec4899 100%
+    );
+    background-size: 200% 200%;
+    border: none;
+    color: white;
+    font-weight: 700;
+    padding: 1.25rem 2.5rem;
+    border-radius: 1.25rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 
+        0 12px 35px rgba(139, 92, 246, 0.4),
+        0 0 25px rgba(139, 92, 246, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+}
+
+.modal .btn-primary::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 100%
+    );
+    transition: left 0.8s ease;
+    z-index: 1;
+}
+
+.modal .btn-primary::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, 
+        rgba(255, 255, 255, 0.2) 0%,
+        transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 1.25rem;
+}
+
+.modal .btn-primary:hover {
+    transform: translateY(-6px) rotateX(15deg) scale(1.05);
+    background-position: 100% 0%;
+    box-shadow: 
+        0 20px 45px rgba(139, 92, 246, 0.5),
+        0 0 40px rgba(139, 92, 246, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.modal .btn-primary:hover::before {
+    left: 100%;
+}
+
+.modal .btn-primary:hover::after {
+    opacity: 1;
+}
+
+.modal .btn-primary:active {
+    transform: translateY(-2px) rotateX(5deg) scale(0.98);
+    transition: all 0.1s ease;
+}
+
+/* Secondary button with glassmorphism */
+.modal .btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    color: var(--text-primary);
+    font-weight: 600;
+    padding: 1.25rem 2.5rem;
+    border-radius: 1.25rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    backdrop-filter: blur(20px);
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.modal .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(255, 255, 255, 0.1);
+}
+
+/*===========================
+    ULTRA-ENHANCED STYLISH DROPDOWN UI
+===========================*/
+
+:root {
+    --dropdown-bg-ultra: rgba(15, 23, 42, 0.85);
+    --dropdown-border-ultra: rgba(255, 255, 255, 0.12);
+    --dropdown-text-ultra: #f1f5f9;
+    --dropdown-hover-ultra: rgba(139, 92, 246, 0.15);
+    --dropdown-selected-ultra: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(59, 130, 246, 0.2));
+    --dropdown-accent-ultra: #8b5cf6;
+    --dropdown-shadow-ultra: 0 25px 50px rgba(0, 0, 0, 0.5);
+    --dropdown-blur-ultra: blur(24px) saturate(180%);
+    --dropdown-radius-ultra: 1.5rem;
+}
+
+/* Ultra-enhanced container */
+.dropdown-container-ultra {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.dropdown-trigger {
+    background: var(--dropdown-bg-ultra);
+    color: var(--dropdown-text-ultra);
+    border: 2px solid var(--dropdown-border-ultra);
+    border-radius: var(--dropdown-radius-ultra);
+    padding: 1.25rem 1.5rem;
+    font-size: 1.1rem;
+    font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 500;
+    backdrop-filter: var(--dropdown-blur-ultra);
+    box-shadow: var(--dropdown-shadow-ultra);
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+    width: 100%;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+.dropdown-trigger::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.05) 0%,
+        transparent 50%,
+        rgba(139, 92, 246, 0.05) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: var(--dropdown-radius-ultra);
+}
+
+.dropdown-trigger:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+    box-shadow: 
+        0 35px 70px rgba(0, 0, 0, 0.6),
+        0 0 50px rgba(139, 92, 246, 0.2);
+}
+
+.dropdown-trigger:hover::before {
+    opacity: 1;
+}
+
+.dropdown-trigger.active {
+    border-color: var(--dropdown-accent-ultra);
+    box-shadow: 
+        0 0 0 4px rgba(139, 92, 246, 0.2),
+        var(--dropdown-shadow-ultra);
+    transform: translateY(-2px);
+}
+
+/* Enhanced arrow with rotation animation */
+.dropdown-arrow {
+    width: 24px;
+    height: 24px;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    fill: var(--dropdown-text-ultra);
+    opacity: 0.7;
+}
+
+.dropdown-trigger.active .dropdown-arrow {
+    transform: rotate(180deg);
+    opacity: 1;
+    fill: var(--dropdown-accent-ultra);
+}
+
+/* Ultra-enhanced dropdown menu */
+.dropdown-menu-ultra {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    left: 0;
+    right: 0;
+    background: var(--dropdown-bg-ultra);
+    border-radius: var(--dropdown-radius-ultra);
+    border: 2px solid var(--dropdown-border-ultra);
+    box-shadow: 
+        0 40px 80px rgba(0, 0, 0, 0.6),
+        0 0 60px rgba(139, 92, 246, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    backdrop-filter: var(--dropdown-blur-ultra);
+    padding: 1rem 0;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 1000;
+}
+
+.dropdown-menu-ultra.open {
+    max-height: 400px;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Ultra-enhanced dropdown items */
+.dropdown-item-ultra {
+    padding: 1rem 1.5rem;
+    color: var(--dropdown-text-ultra);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    backdrop-filter: blur(10px);
+}
+
+.dropdown-item-ultra::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--dropdown-accent-ultra);
+    border-radius: 0 4px 4px 0;
+    transform: scaleY(0);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dropdown-item-ultra:hover {
+    background: var(--dropdown-hover-ultra);
+    color: #ffffff;
+    transform: translateX(8px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+}
+
+.dropdown-item-ultra:hover::before {
+    transform: scaleY(1);
+}
+
+.dropdown-item-ultra.selected {
+    background: var(--dropdown-selected-ultra);
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+}
+
+.dropdown-item-ultra.selected::before {
+    transform: scaleY(1);
+}
+
+/* Enhanced search input inside dropdown */
+.dropdown-search-ultra {
+    position: sticky;
+    top: 0;
+    background: var(--dropdown-bg-ultra);
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: var(--dropdown-blur-ultra);
+    z-index: 10;
+}
+
+.dropdown-search-ultra input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    padding: 0.75rem 1rem;
+    color: var(--dropdown-text-ultra);
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    backdrop-filter: blur(10px);
+}
+
+.dropdown-search-ultra input:focus {
+    border-color: var(--dropdown-accent-ultra);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Enhanced close button with morphing animation */
+.modal-close-ultra {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    color: var(--text-primary);
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.5rem;
+    font-weight: 300;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    backdrop-filter: blur(20px);
+    z-index: 10;
+}
+
+.modal-close-ultra:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+    transform: rotate(90deg) scale(1.15);
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+}
+
+/* Enhanced scrollbar */
+.dropdown-menu-ultra::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dropdown-menu-ultra::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 4px;
+}
+
+.dropdown-menu-ultra::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, 
+        rgba(139, 92, 246, 0.6),
+        rgba(59, 130, 246, 0.6)
+    );
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.dropdown-menu-ultra::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, 
+        rgba(139, 92, 246, 0.8),
+        rgba(59, 130, 246, 0.8)
+    );
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+/* Mobile enhancements */
+@media (max-width: 768px) {
+    .modal {
+        padding: 2.5rem 2rem;
+        margin: 1rem;
+        width: calc(100% - 2rem);
+        border-radius: 1.5rem;
+    }
+
+    .dropdown-trigger {
+        font-size: 16px; /* Prevents zoom on iOS */
+        min-height: 56px;
+    }
+
+    .dropdown-item-ultra {
+        padding: 1.25rem 1.5rem;
+        font-size: 1.05rem;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .modal, .dropdown-trigger, .dropdown-menu-ultra {
+        border-width: 3px;
+    }
+}
+
+/* Dark mode enhancements */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --glass-bg: rgba(5, 15, 25, 0.8);
+        --text-primary: #ffffff;
+        --text-secondary: #e2e8f0;
+    }
+}
+    </style>
+</head>
+<body style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e1b4b 100%); min-height: 100vh; font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 2rem; display: flex; flex-direction: column; gap: 2rem;">
+
+    <!-- Modal Backdrop -->
+    <div class="modal-backdrop"></div>
+
+    <!-- Ultra-Enhanced Modal -->
+    <div class="modal">
+        <button class="modal-close-ultra">&times;</button>
+        
+        <h2 style="margin: 0 0 2rem 0; font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, #ffffff, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Welcome Back! Let’s Manage Your Finances</h2>
+        
+        <div class="input-group">
+            <input type="text" class="floating-input" placeholder="Enter your name">
+            <label class="floating-label">Full Name</label>
+        </div>
+        
+        <div class="input-group">
+            <input type="email" class="floating-input" placeholder="Enter your email">
+            <label class="floating-label">Email Address</label>
+        </div>
+        
+        <div class="input-group">
+            <input type="password" class="floating-input" placeholder="Enter your password">
+            <label class="floating-label">Password</label>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2rem;">
+            <button class="btn-primary">Create Account</button>
+            <button class="btn-secondary">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Ultra-Enhanced Dropdown -->
+    <div style="max-width: 400px; margin: 2rem auto;">
+        <h3 style="color: #f8fafc; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 600;">Ultra-Enhanced Dropdown</h3>
+        
+        <div class="dropdown-container-ultra">
+            <div class="dropdown-trigger" onclick="toggleDropdown()">
+                <span id="selected-text">Select an option...</span>
+                <svg class="dropdown-arrow" viewBox="0 0 24 24">
+                    <path d="M7 10l5 5 5-5z"/>
+                </svg>
+            </div>
+            
+            <div class="dropdown-menu-ultra" id="dropdown-menu">
+                <div class="dropdown-search-ultra">
+                    <input type="text" placeholder="Search options..." onkeyup="filterOptions(this.value)">
+                </div>
+                
+                <div class="dropdown-item-ultra" onclick="selectOption(this, 'Option 1')">
+                    <span>🚀 Premium Option</span>
+                </div>
+                <div class="dropdown-item-ultra" onclick="selectOption(this, 'Option 2')">
+                    <span>⭐ Featured Choice</span>
+                </div>
+                <div class="dropdown-item-ultra" onclick="selectOption(this, 'Option 3')">
+                    <span>💎 Diamond Selection</span>
+                </div>
+                <div class="dropdown-item-ultra" onclick="selectOption(this, 'Option 4')">
+                    <span>🔥 Popular Pick</span>
+                </div>
+                <div class="dropdown-item-ultra" onclick="selectOption(this, 'Option 5')">
+                    <span>✨ Special Edition</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced dropdown functionality
+        function toggleDropdown() {
+            const trigger = document.querySelector('.dropdown-trigger');
+            const menu = document.getElementById('dropdown-menu');
+            
+            trigger.classList.toggle('active');
+            menu.classList.toggle('open');
+        }
+
+        function selectOption(element, value) {
+            const selectedText = document.getElementById('selected-text');
+            const allItems = document.querySelectorAll('.dropdown-item-ultra');
+            
+            // Remove selected class from all items
+            allItems.forEach(item => item.classList.remove('selected'));
+            
+            // Add selected class to clicked item
+            element.classList.add('selected');
+            
+            // Update selected text
+            selectedText.textContent = value;
+            
+            // Close dropdown
+            setTimeout(() => {
+                document.querySelector('.dropdown-trigger').classList.remove('active');
+                document.getElementById('dropdown-menu').classList.remove('open');
+            }, 200);
+        }
+
+        function filterOptions(searchText) {
+            const items = document.querySelectorAll('.dropdown-item-ultra');
+            
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                const matches = text.includes(searchText.toLowerCase());
+                item.style.display = matches ? 'flex' : 'none';
+            });
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.querySelector('.dropdown-container-ultra');
+            if (!dropdown.contains(event.target)) {
+                document.querySelector('.dropdown-trigger').classList.remove('active');
+                document.getElementById('dropdown-menu').classList.remove('open');
+            
